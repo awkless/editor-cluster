@@ -164,3 +164,68 @@ set novisualbell
 set t_vb=
 set tm=500
 
+" Highlight the symbol and its references when holding the curser.
+autocmd CursorHold * silent call CocActionAsync('highlight')
+
+"==============================================================================
+" Keymappings
+"==============================================================================
+
+" Make comma the defalt leader key.
+let mapleader=","
+
+" Fast saving.
+nmap <leader>w :w!<cr>
+
+" Use W in command mode to sudo save a file.
+command! W execute 'w !sudo tee % >/dev/null' <bar> edit!
+nmap <leader>W :W<cr>
+
+" Use tab to trigger completion with characters ahead.
+inoremap <silent><expr> <tab>
+  \ coc#pum#visible() ? coc#pum#next(1) :
+  \ CheckBackspace() ? "\<tab>" :
+  \ coc#refresh()
+inoremap <expr><s-tab> coc#pum#visible() ? coc#pum#prev(1) : "\<c-h>"
+
+" Make <cr> accept selected completion item or notify coc.nvim to format.
+" Keymap <c-g>u breaks current undo.
+inoremap <silent><expr> <cr> coc#pum#visible() ? coc#pum#confirm()
+  \: "\<c-g>u\<cr>\<c-r>=coc#on_enter()\<cr>"
+
+" Use <c-tab> to trigger completion.
+inoremap <silent><expr> <c-tab> coc#refresh()
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call ShowDocumentation()<cr>
+
+" Use '[g' and ']g' to navigate diagnostics.
+" Use ':CocDiagnostics' to get all diagnostics of current buffer.
+nmap <silent><nowait> [g <Plug>(coc-diagnostic-prev)
+nmap <silent><nowait> g] <Plug>(coc-diagnostic-next)
+
+" Goto code navigation.
+nmap <silent><nowait> gd <Plug>(coc-definition)
+nmap <silent><nowait> gy <Plug>(coc-type-definition)
+nmap <silent><nowait> gi <Plug>(coc-implementation)
+nmap <silent><nowait> gr <Plug>(coc-references)
+
+" Symbol renaming.
+nmap <leader>rn <Plug>(coc-rename)
+
+"==============================================================================
+" Helpers
+"==============================================================================
+
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1] =~# '\s'
+endfunction
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in)
+  endif
+endfunction
