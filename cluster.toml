@@ -1,0 +1,4 @@
+[settings]
+description = "Text editor configuration cluster"
+url = "git@github.com:awkles/editor-cluster.git"
+work_tree_alias = "$HOME"
