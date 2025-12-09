@@ -1,6 +1,10 @@
 " SPDX-FileCopyrightText: 2023-2024 Jason Pena <jasonpena@awkless.com>
 " SPDX-License-Identifier: MIT
 
+"==============================================================================
+" General Settings
+"==============================================================================
+
 " Tiny VIM does not have "eval".
 if has("eval")
   let skip_defaults_vim = 1
@@ -62,3 +66,41 @@ set ttyfast
 
 " Make backspace more natural.
 set backspace=indent,eol,start
+
+"==============================================================================
+" UI Options
+"==============================================================================
+
+" Line width limit.
+set textwidth=100
+set colorcolumn=80,100,120
+set cursorline
+set signcolumn=yes
+set wrap
+set nolist
+set linebreak
+set showbreak=$
+
+" Configure command completion
+set wildmenu
+set wildmode=longest:full,full
+set wildoptions=pum
+
+" Configure colorscheme
+syntax on
+set t_Co=256
+set termguicolors
+set background=dark
+
+" Fold settings.
+set foldmethod=indent
+set nofoldenable
+
+" Make splits more natural.
+set splitbelow
+set splitright
+
+" Configure statusline.
+set laststatus=2
+set ruler
+set updatetime=100
