@@ -19,7 +19,10 @@ filetype indent on
 
 " Auto read when a file is modified from the outside.
 set autoread
-au FocusGained,BufEnter * checktime
+au FocusGained,BufEnter * silent! checktime
+
+" Set lines of history.
+set history=1000
 
 " Establish default file settings.
 let $LANG = 'en'
@@ -27,45 +30,72 @@ set langmenu=en
 set encoding=utf8
 set ffs=unix,dos,mac
 
-" Set history size and cursor position.
-set history=1000
-set scrolloff=999
-
 " Search settings.
 set smartcase
 set hlsearch
 set incsearch
 set lazyredraw
 
-" Highlight trailing whitespace.
-match IncSearch '\s\+$'
-
-" Bracket settings.
-set mat=3
-
-" Remove annoying error sounds.
-set noerrorbells
-set novisualbell
-set t_vb=
-set tm=500
-
 " Disable backup features.
 set nobackup
 set nowb
 set noswapfile
 
-" Disable mouse.
-set mouse=
-set ttymouse=
-
 " Stop complaints about switching buffer with changes.
 set hidden
 
-" Faster scrolling.
-set ttyfast
-
 " Make backspace more natural.
 set backspace=indent,eol,start
+
+" Turn on persistent undo.
+try
+  set undodir=~/.vim_runtime/temp_dirs/undodir
+  set undofile
+catch
+endtry
+
+" Ignore compiled files
+set wildignore=*.o,*~,*.pyc
+if has("win16") || has("win32")
+  set wildignore+=.git\*,.hg\*,.svn\*
+else
+  set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
+endif
+
+"==============================================================================
+" Plugins
+"==============================================================================
+
+" Install vim-plug if not found.
+if empty(glob('~/.vim/autoload/plug.vim'))
+  silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+endif
+
+" Run PlugInstall if there are missing plugins.
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+  \| PlugInstall --sync | source $MYVIMRC
+\| endif
+
+if filereadable(expand("~/.vim/autoload/plug.vim"))
+  call plug#begin('~/.local/share/vim/plugins')
+  " General stuff.
+  Plug 'tpope/vim-sleuth'
+  Plug 'tpope/vim-commentary'
+
+  " Git stuff.
+  Plug 'tpope/vim-fugitive'
+  Plug 'airblade/vim-gitgutter'
+
+  " LSP stuff.
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+
+  " UI stuff.
+  Plug 'srcery-colors/srcery-vim'
+  Plug 'rust-lang/rust.vim'
+  Plug 'bfrg/vim-cpp-modern'
+  call plug#end()
+endif
 
 "==============================================================================
 " UI Options
@@ -92,6 +122,12 @@ set t_Co=256
 set termguicolors
 set background=dark
 
+try
+  colorscheme srcery
+catch
+  colorscheme default
+endtry
+
 " Fold settings.
 set foldmethod=indent
 set nofoldenable
@@ -104,3 +140,27 @@ set splitright
 set laststatus=2
 set ruler
 set updatetime=100
+set cmdheight=1
+
+" Highlight trailing whitespace.
+match IncSearch '\s\+$'
+
+" Bracket settings.
+set mat=3
+
+" Disable mouse.
+set mouse=
+set ttymouse=
+
+" Faster scrolling.
+set ttyfast
+
+" Set cursor position.
+set scrolloff=999
+
+" Remove annoying error sounds.
+set noerrorbells
+set novisualbell
+set t_vb=
+set tm=500
+
