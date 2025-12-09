@@ -62,6 +62,24 @@ else
   set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 endif
 
+" Delete trailing white space on save.
+if has("autocmd")
+  autocmd BufWritePre *.txt,*.js,*.py,*.h,*.hpp,*.c,*.cpp,*.rs,*.toml,*.sh
+    \ :call CleanExtraWhitespace()
+endif
+
+" Specify the behavior when switching between buffers
+try
+  set switchbuf=useopen,usetab,newtab
+  set stal=2
+catch
+endtry
+
+" Return to last edit position when opening files (You want this!)
+au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$")
+  \| exe "normal! g'\""
+\| endif
+
 "==============================================================================
 " Plugins
 "==============================================================================
@@ -165,7 +183,9 @@ set t_vb=
 set tm=500
 
 " Highlight the symbol and its references when holding the curser.
-autocmd CursorHold * silent call CocActionAsync('highlight')
+if has("autocmd")
+  autocmd CursorHold * silent call CocActionAsync('highlight')
+endif
 
 "==============================================================================
 " Keymappings
@@ -173,6 +193,54 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Make comma the defalt leader key.
 let mapleader=","
+
+" Use jj as a substitute for <esc>.
+imap jj <esc>
+
+" Remove with Windows ^M when encodings get messed up somehow.
+noremap <leader>m mmHmt:%s/<c-v><cr>//ge<cr>'tzt'm
+
+" Move to current directory of file...
+nmap <leader>cd :cd %:p:h<cr>:pwd<cr>
+
+" Toggle paste mode...
+nmap <leader>pp :setlocal paste!<cr>
+
+" Move through args.
+map <leader>al :w<cr>:n<cr>
+map <leader>ah :w<cr>:N<cr>
+
+" Window movement.
+map <C-j> <C-W>j
+map <C-k> <C-W>k
+map <C-h> <C-W>h
+map <C-l> <C-W>l
+map <C-e> <C-W>=
+
+" Close the current buffer.
+map <leader>bd :Bclose<cr>:tabclose<cr>gT
+
+" Close all the buffers.
+map <leader>ba :bufdo bd<cr>
+
+" Move between buffers.
+map <leader>l :bnext<cr>
+map <leader>h :bprevious<cr>
+
+" Useful mappings for managing tabs.
+map <leader>tn :tabnew<cr>
+map <leader>to :tabonly<cr>
+map <leader>tc :tabclose<cr>
+map <leader>tm :tabmove
+map <leader>t<leader> :tabnext<cr>
+
+" Let 'tl' toggle between this and the last accessed tab.
+let g:lasttab = 1
+nmap <leader>tl :exe "tabn ".g:lasttab<CR>
+au TabLeave * let g:lasttab = tabpagenr()
+
+" Opens a new tab with the current buffer's path.
+map <leader>te :tabedit <C-r>=escape(expand("%:p:h"), " ")<cr>/
 
 " Fast saving.
 nmap <leader>w :w!<cr>
@@ -213,19 +281,64 @@ nmap <silent><nowait> gr <Plug>(coc-references)
 " Symbol renaming.
 nmap <leader>rn <Plug>(coc-rename)
 
+" Jump between hunks for git gutter...
+nmap <leader>gh <Plug>GitGutterNextHunk
+nmap <leader>gl <Plug>GitGutterPrevHunk
+nmap <leader>ga <Plug>GitGutterStageHunk
+nmap <leader>gu <Plug>GitGutterUndoHunk
+
+" Spell checking...
+nmap <leader>ss :setlocal spell!<cr>
+nmap <leader>sl ]s
+nmap <leader>sh [s
+nmap <leader>sa zg
+nmap <leader>sc z=
+
 "==============================================================================
 " Helpers
 "==============================================================================
 
+" Check previous character of backspace
 function! CheckBackspace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1] =~# '\s'
 endfunction
 
+" Show documentation on target symbol.
 function! ShowDocumentation()
   if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
   else
     call feedkeys('K', 'in)
+  endif
+endfunction
+
+" Clean extra whitespaces.
+function! CleanExtraWhitespace()
+  let save_cursor = getpos(".")
+  let old_query = getreg('/')
+  silent! %s/\s\+$//e
+  call setpos('.', save_cursor)
+  call setreg('/', old_query)
+endfunction
+
+" Don't close window, when deleting a buffer
+command! Bclose call <SID>BufcloseCloseIt()
+function! <SID>BufcloseCloseIt()
+  let l:currentBufNum = bufnr("%")
+  let l:alternateBufNum = bufnr("#")
+
+  if buflisted(l:alternateBufNum)
+    buffer #
+  else
+    bnext
+  endif
+
+  if bufnr("%") == l:currentBufNum
+    new
+  endif
+
+  if buflisted(l:currentBufNum)
+    execute("bdelete! ".l:currentBufNum)
   endif
 endfunction
