@@ -272,6 +272,10 @@ nnoremap <silent> K :call ShowDocumentation()<cr>
 nmap <silent><nowait> [g <Plug>(coc-diagnostic-prev)
 nmap <silent><nowait> g] <Plug>(coc-diagnostic-next)
 
+" Use <c-f> and <c-b> to scroll pop up windows.
+nnoremap <silent><nowait><expr> <c-f> coc#float#has_scroll() ? coc#float#scroll(1) : "\<c-f>"
+nnoremap <silent><nowait><expr> <c-b> coc#float#has_scroll() ? coc#float#scroll(0) : "\<c-b>"
+
 " Goto code navigation.
 nmap <silent><nowait> gd <Plug>(coc-definition)
 nmap <silent><nowait> gy <Plug>(coc-type-definition)
