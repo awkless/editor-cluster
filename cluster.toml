@@ -3,6 +3,6 @@ description = "Text editor configuration cluster"
 url = "https://github.com/awkles/editor-cluster.git"
 work_tree_alias = "$HOME"
 
-[[dependencies]]
+[[dependency]]
 name = "shell"
 url = "https://github.com/awkless/shell-cluster.git"
